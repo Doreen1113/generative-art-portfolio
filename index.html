@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成式符碼：數位身份的重建</title>
+    
+<style>
+    body { 
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+        text-align: center; 
+        background-color: #f7f7f7;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+    .container { 
+        max-width: 1000px; /* 增加容器寬度以容納並排圖片 */
+        margin: 0 auto; 
+        padding: 30px; 
+        background-color: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 8px;
+    }
+    #artwork-title { 
+        font-size: 1.8em; 
+        margin-bottom: 25px; 
+        border-bottom: 2px solid #ccc;
+        padding-bottom: 10px;
+    }
+    
+    /* 1. 圖片並排容器：使用 Flexbox */
+    .gallery {
+        display: flex;
+        justify-content: center; /* 讓圖片居中 */
+        align-items: flex-start; /* 讓圖片頂部對齊 */
+        gap: 30px; /* 圖片之間的間距 */
+        margin-bottom: 30px;
+    }
+
+    /* 2. 原始素材圖片：調大尺寸，佔比多一點 */
+    #motif-image {
+        max-width: 40%; /* 佔據容器約 40% 寬度 */
+        height: auto;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        opacity: 0.9;
+    }
+
+    /* 3. 生成 GIF 動畫：調小尺寸，佔比少一點 */
+    #artwork-image { 
+        max-width: 40%; /* 佔據容器約 35% 寬度 */
+        height: auto; 
+        border: 2px solid #5c6770; /* 邊框更明顯，作為核心動態作品 */
+        border-radius: 4px;
+        margin: 0; /* 移除舊有的自動 margin */
+    }
+
+    #artwork-description {
+        font-size: 1.1em;
+        color: #555;
+        margin: 25px 0;
+        line-height: 1.6;
+        text-align: left; /* 讓描述文字左對齊 */
+        padding: 0 50px; /* 內邊距 */
+    }
+    
+    .nav-buttons { 
+        margin-top: 30px; 
+    }
+    .nav-buttons button { 
+        padding: 10px 20px; 
+        margin: 0 15px; 
+        cursor: pointer; 
+        font-size: 1em;
+        border: none;
+        border-radius: 5px;
+        background-color: #5c6770;
+        color: white;
+        transition: background-color 0.3s;
+    }
+    .nav-buttons button:hover {
+        background-color: #343a40;
+    }
+    .nav-buttons button[style*="visibility: hidden"] {
+        cursor: default;
+        background-color: #ccc;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        
+        <h1 id="artwork-title"></h1>
+        
+        <div class="gallery">
+            <img id="motif-image" src="" alt="原始符碼素材">
+            
+            <img id="artwork-image" src="" alt="生成藝術作品">
+        </div>
+        
+        <p id="artwork-description"></p>
+
+        <div class="nav-buttons">
+            <button id="prev-button" onclick="navigate(-1)">← 前一個作品</button>
+            <button id="next-button" onclick="navigate(1)">後一個作品 →</button>
+        </div>
+        
+    </div>
+
+    <script>
+        // 確保以下檔案名稱與您上傳到 GitHub 的名稱完全一致！
+        const artworks = [
+            { 
+                name: "2.1 Gunung Ringgit - 崇高靈光", 
+                file: "animation.gif", 
+                motif_file: "1.png", 
+                description: "主題：靈光的消解與流動身份。運用 Perlin Noise 模擬崇高符碼的數位脈動，批判班雅明的「靈光消逝」。"
+            },
+            { 
+                name: "2.2 Kricak_Watu Pecah - 身份殘片", 
+                file: "Kricak_B.gif", 
+                motif_file: "2.png", 
+                description: "主題：擬像與不確定性。碎片徒勞地聚合，體現布希亞的「擬像」理論，詮釋身份的非連續性。"
+            },
+            { 
+                name: "2.3 Latohan - 有機連續性", 
+                file: "Latohan_AB.gif", 
+                motif_file: "3.png", 
+                description: "主題：文化脈絡的韌性。採用 L-System 重建有機生長與連續性，強調符碼在數位中的生命力。"
+            },
+            { 
+                name: "2.4 Nyuk Pitu - 數位群體", 
+                file: "InkFlowBreath.gif", 
+                motif_file: "4.png", 
+                description: "主題：資訊過載與集體性。透過數量參數和力場模擬群體的聚散，批判數位媒介的影像過載。"
+            },
+            { 
+                name: "2.5 Seritan - 裝飾的權力", 
+                file: "SeritanBreath.gif", 
+                motif_file: "5.png", 
+                description: "主題：數位裝飾與視覺操控。粒子系統與振動暗示複製的雜訊干擾，揭示裝飾背後的權力結構。"
+            }
+        ];
+
+        let currentIndex = 0;
+
+        // 函數：控制按鈕的隱藏與顯示 (無循環)
+        function updateNavigation() {
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+
+            // 檢查是否為第一個作品 (2.1)
+            if (currentIndex === 0) {
+                prevButton.style.visibility = 'hidden'; 
+            } else {
+                prevButton.style.visibility = 'visible';
+            }
+
+            // 檢查是否為最後一個作品 (2.5)
+            if (currentIndex === artworks.length - 1) {
+                nextButton.style.visibility = 'hidden'; 
+            } else {
+                nextButton.style.visibility = 'visible';
+            }
+        }
+
+        // 函數：載入並顯示當前作品
+        function loadArtwork(index) {
+            // 嚴格邊界檢查 
+            if (index < 0 || index >= artworks.length) {
+                return; 
+            }
+
+            currentIndex = index;
+            const current = artworks[currentIndex];
+            
+            // 更新 HTML 元素內容
+            document.getElementById('artwork-title').textContent = current.name;
+            document.getElementById('motif-image').src = current.motif_file; 
+            document.getElementById('artwork-image').src = current.file;
+            document.getElementById('artwork-description').textContent = current.description;
+            
+            // 更新按鈕狀態
+            updateNavigation();
+
+            // 更新 URL Hash (讓網址可以精準分享到某個作品)
+            history.pushState(null, current.name, `#${currentIndex}`);
+        }
+
+        // 函數：處理導航按鈕點擊
+        function navigate(direction) {
+            loadArtwork(currentIndex + direction);
+        }
+
+        // 頁面載入時的初始化
+        window.onload = function() {
+            // 檢查 URL Hash，決定從哪個作品開始載入 (用於精準分享連結)
+            const hashIndex = parseInt(window.location.hash.substring(1));
+            if (!isNaN(hashIndex) && hashIndex >= 0 && hashIndex < artworks.length) {
+                loadArtwork(hashIndex);
+            } else {
+                loadArtwork(0); // 默認載入第一個作品 (2.1)
+            }
+        };
+    </script>
+</body>
+</html>
