@@ -5,88 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>生成式符碼：數位身份的重建</title>
     
-<style>
-    body { 
-        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
-        text-align: center; 
-        background-color: #f7f7f7;
-        color: #333;
-        margin: 0;
-        padding: 20px;
-    }
-    .container { 
-        max-width: 1000px; /* 增加容器寬度以容納並排圖片 */
-        margin: 0 auto; 
-        padding: 30px; 
-        background-color: #fff;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        border-radius: 8px;
-    }
-    #artwork-title { 
-        font-size: 1.8em; 
-        margin-bottom: 25px; 
-        border-bottom: 2px solid #ccc;
-        padding-bottom: 10px;
-    }
-    
-    /* 1. 圖片並排容器：使用 Flexbox */
-    .gallery {
-        display: flex;
-        justify-content: center; /* 讓圖片居中 */
-        align-items: flex-start; /* 讓圖片頂部對齊 */
-        gap: 30px; /* 圖片之間的間距 */
-        margin-bottom: 30px;
-    }
+    <style>
+        body { 
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; 
+            text-align: center; 
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 30px; 
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        #artwork-title { 
+            font-size: 1.8em; 
+            margin-bottom: 25px; 
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+        
+        /* 圖片畫廊容器的初始設定：垂直堆疊 (手機優先) */
+        .gallery {
+            display: flex;
+            flex-direction: column; /* 預設為垂直堆疊 */
+            align-items: center;    /* 讓圖片在垂直方向上居中 */
+            gap: 30px; 
+            margin-bottom: 30px;
+        }
 
-    /* 2. 原始素材圖片：調大尺寸，佔比多一點 */
-    #motif-image {
-        max-width: 40%; /* 佔據容器約 40% 寬度 */
-        height: auto;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        opacity: 0.9;
-    }
+        /* 原始素材圖片：佔滿容器寬度，並設定一個最大寬度 */
+        #motif-image {
+            max-width: 80%; /* 手機上佔大部分寬度 */
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            opacity: 0.9;
+        }
 
-    /* 3. 生成 GIF 動畫：調小尺寸，佔比少一點 */
-    #artwork-image { 
-        max-width: 40%; /* 佔據容器約 35% 寬度 */
-        height: auto; 
-        border: 2px solid #5c6770; /* 邊框更明顯，作為核心動態作品 */
-        border-radius: 4px;
-        margin: 0; /* 移除舊有的自動 margin */
-    }
+        /* 生成 GIF 動畫：佔滿容器寬度，並設定一個最大寬度 */
+        #artwork-image { 
+            max-width: 80%; /* 手機上佔大部分寬度 */
+            height: auto; 
+            border: 2px solid #5c6770;
+            border-radius: 4px;
+            margin: 0; 
+        }
 
-    #artwork-description {
-        font-size: 1.1em;
-        color: #555;
-        margin: 25px 0;
-        line-height: 1.6;
-        text-align: left; /* 讓描述文字左對齊 */
-        padding: 0 50px; /* 內邊距 */
-    }
-    
-    .nav-buttons { 
-        margin-top: 30px; 
-    }
-    .nav-buttons button { 
-        padding: 10px 20px; 
-        margin: 0 15px; 
-        cursor: pointer; 
-        font-size: 1em;
-        border: none;
-        border-radius: 5px;
-        background-color: #5c6770;
-        color: white;
-        transition: background-color 0.3s;
-    }
-    .nav-buttons button:hover {
-        background-color: #343a40;
-    }
-    .nav-buttons button[style*="visibility: hidden"] {
-        cursor: default;
-        background-color: #ccc;
-    }
-</style>
+        #artwork-description {
+            font-size: 1.1em;
+            color: #555;
+            margin: 25px 0;
+            line-height: 1.6;
+            text-align: left;
+            padding: 0 50px;
+        }
+        
+        .nav-buttons { 
+            margin-top: 30px; 
+        }
+        .nav-buttons button { 
+            padding: 10px 20px; 
+            margin: 0 15px; 
+            cursor: pointer; 
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            background-color: #5c6770;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .nav-buttons button:hover {
+            background-color: #343a40;
+        }
+        .nav-buttons button[style*="visibility: hidden"] {
+            cursor: default;
+            background-color: #ccc; /* 隱藏時改變顏色，讓用戶知道它不可點擊 */
+        }
+
+        /* *** 響應式設計 (Responsive Design) 媒體查詢：桌面/大螢幕佈局 *** */
+        @media (min-width: 768px) {
+            .gallery {
+                flex-direction: row; /* 轉為水平並排 */
+                align-items: flex-start; /* 讓圖片頂部對齊 */
+            }
+
+            #motif-image {
+                max-width: 40%; /* 並排時佔 40% 寬度 */
+            }
+            
+            #artwork-image { 
+                max-width: 40%; /* 並排時佔 35% 寬度 */
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -106,6 +122,7 @@
             <button id="next-button" onclick="navigate(1)">後一個作品 →</button>
         </div>
         
+        <p style="margin-top: 30px; font-size: 0.85em; color: #aaa;">（這是您的作品集互動式展示 QR Code 掃描頁面）</p>
     </div>
 
     <script>
